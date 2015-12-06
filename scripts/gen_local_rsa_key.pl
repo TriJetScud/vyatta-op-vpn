@@ -100,13 +100,7 @@ if (-e $temp_key_file) {
     }
 }
 
-$cmd = "/usr/lib/ipsec/newhostkey --output $local_key_file --bits $bits";
-#
-# The default random number generator is /dev/random, but it will block 
-# if there isn't enough system activity to provide enough "good" random
-# bits.  Try /dev/urandom if it's taking too long.
-#
-$cmd .= " --random $device";
+$cmd = "/usr/sbin/ipsec pki --gen --outform pem --size $bits > $local_key_file";
 
 # when presenting to users, show shortened /config path
 my $shortened_cfg_path_file = get_short_config_path($local_key_file);
@@ -117,6 +111,7 @@ $rc = system($cmd);
 if ($rc != 0) {
     die "Can not generate RSA key: $!\n";
 }
+chmod 0600, $local_key_file;
 
 my $file_pubkey = rsa_get_local_pubkey($local_key_file);
 if ($file_pubkey ne 0) {
